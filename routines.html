@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anchor — My Routine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <header class="site-header" id="site-header"></header>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <span class="eyebrow">Your recurring plan</span>
+        <h1>My Routine</h1>
+      </div>
+      <button class="btn btn-primary" id="addRoutineBtn">+ Add time block</button>
+    </div>
+
+    <p class="section-sub" style="margin-bottom:18px;">These are the times you're committing to every day. Your daily dashboard checks each one off against this list.</p>
+
+    <div id="routineList"></div>
+    <div id="emptyState" class="timeline-empty" style="display:none;">
+      <p>No routine yet. Add your first time block — e.g. 5:00 AM, "Wake up".</p>
+      <button class="btn btn-primary" id="emptyAddBtn">+ Add time block</button>
+    </div>
+  </main>
+
+  <!-- Add / edit modal -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-card">
+      <h2 id="modalTitle">Add time block</h2>
+      <div id="modalError"></div>
+      <form id="routineForm">
+        <input type="hidden" id="routineId" />
+        <div class="field-row">
+          <div class="field">
+            <label for="rTime">Time</label>
+            <input type="time" id="rTime" required />
+          </div>
+          <div class="field">
+            <label for="rDuration">Duration (min)</label>
+            <input type="number" id="rDuration" min="5" step="5" value="30" required />
+          </div>
+        </div>
+        <div class="field">
+          <label for="rTitle">Title</label>
+          <input type="text" id="rTitle" placeholder="e.g. Warm up" required />
+        </div>
+        <div class="field">
+          <label for="rDesc">Notes (optional)</label>
+          <textarea id="rDesc" placeholder="Any details for yourself"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="modalCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="modalSave">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./js/routines.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anchor — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <header class="site-header" id="site-header"></header>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <span class="eyebrow">Today's plan</span>
+        <h1 id="pageTitle">Dashboard</h1>
+      </div>
+
+      <div class="date-control">
+        <button class="btn-icon" id="prevDay" aria-label="Previous day">‹</button>
+        <button class="date-label" id="dateLabelBtn" aria-haspopup="true" aria-expanded="false">
+          <span class="dow" id="dateLabelDow">—</span>
+          <span id="dateLabelDate">—</span>
+        </button>
+        <button class="btn-icon" id="nextDay" aria-label="Next day">›</button>
+
+        <div class="calendar-pop" id="calendarPop">
+          <div class="calendar-pop-head">
+            <button class="btn-icon" id="calPrevMonth" aria-label="Previous month" style="width:28px;height:28px;">‹</button>
+            <span id="calMonthLabel">—</span>
+            <button class="btn-icon" id="calNextMonth" aria-label="Next month" style="width:28px;height:28px;">›</button>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <section class="stats-card">
+      <div class="stats-top">
+        <div class="big-pct"><span id="statPct">0%</span> <span>completed today</span></div>
+        <div class="stats-legend">
+          <span><span class="dot done"></span><span id="statDoneMin">0m</span> kept</span>
+          <span><span class="dot missed"></span><span id="statMissedMin">0m</span> missed</span>
+          <span><span class="dot pending"></span><span id="statPendingCount">0</span> pending</span>
+        </div>
+      </div>
+      <div class="stats-split">
+        <div class="seg-done" id="segDone" style="width:0%"></div>
+        <div class="seg-missed" id="segMissed" style="width:0%"></div>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <div id="timelineWrap"></div>
+
+    <!-- End of day feedback -->
+    <section class="section-card">
+      <h2>End-of-day reflection</h2>
+      <p class="section-sub">Optional — a few words on how the day actually went.</p>
+      <div id="feedbackMsg"></div>
+      <div class="field">
+        <label for="feedbackText">What happened today?</label>
+        <textarea id="feedbackText" placeholder="e.g. Slept late so the morning routine slipped, but I caught up by noon…"></textarea>
+      </div>
+      <div class="field" style="max-width:220px;">
+        <label for="moodSelect">Mood</label>
+        <select id="moodSelect">
+          <option value="">Skip</option>
+          <option value="great">🙂 Great</option>
+          <option value="okay">😐 Okay</option>
+          <option value="rough">🙁 Rough</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" id="saveFeedback">Save reflection</button>
+    </section>
+
+    <!-- Advice -->
+    <section class="section-card">
+      <h2>Suggestions for tomorrow</h2>
+      <p class="section-sub">Generated from your recent completion patterns.</p>
+      <ul class="advice-list" id="adviceList"></ul>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./js/dashboard.js"></script>
+</body>
+</html>

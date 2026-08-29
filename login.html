@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anchor — Sign in</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <div class="auth-shell">
+    <section class="auth-brand">
+      <div class="auth-brand-top">
+        <span class="nav-brand">
+          <span class="nav-brand-mark" aria-hidden="true"></span>
+          Anchor
+        </span>
+      </div>
+
+      <div class="auth-rail">
+        <div class="auth-rail-track">
+          <div class="auth-rail-item is-done">
+            05:00
+            <strong>Wake up</strong>
+          </div>
+          <div class="auth-rail-item is-done">
+            05:30
+            <strong>Warm up</strong>
+          </div>
+          <div class="auth-rail-item">
+            06:00
+            <strong>Bathe &amp; eat</strong>
+          </div>
+          <div class="auth-rail-item">
+            06:30
+            <strong>Check emails</strong>
+          </div>
+        </div>
+      </div>
+
+      <p class="auth-brand-bottom">Plan every hour of your day, mark what actually happened, and see the time you kept versus the time you lost.</p>
+    </section>
+
+    <section class="auth-form-wrap">
+      <div class="auth-card">
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab is-active" id="tabSignIn" type="button" role="tab" aria-selected="true">Sign in</button>
+          <button class="auth-tab" id="tabSignUp" type="button" role="tab" aria-selected="false">Create account</button>
+        </div>
+
+        <div id="formMessage"></div>
+
+        <!-- Sign in -->
+        <form id="signInForm">
+          <div class="field">
+            <label for="siEmail">Email</label>
+            <input id="siEmail" type="email" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="siPassword">Password</label>
+            <input id="siPassword" type="password" autocomplete="current-password" required />
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" id="siSubmit">Sign in</button>
+        </form>
+
+        <!-- Sign up -->
+        <form id="signUpForm" style="display:none;">
+          <div class="field">
+            <label for="suEmail">Email</label>
+            <input id="suEmail" type="email" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="suPassword">Password</label>
+            <input id="suPassword" type="password" autocomplete="new-password" minlength="6" required />
+          </div>
+          <div class="field-hint">At least 6 characters.</div>
+          <button class="btn btn-primary btn-block" type="submit" id="suSubmit">Create account</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./js/auth.js"></script>
+</body>
+</html>
