@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anchor — Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <header class="site-header" id="site-header"></header>
+
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <span class="eyebrow">Your daily notes</span>
+        <h1>Archive</h1>
+      </div>
+    </div>
+
+    <p class="section-sub" style="margin-bottom:18px;">Every end-of-day reflection you've saved, laid out by month. Days with a note are marked — click one to read it.</p>
+
+    <section class="archive-calendar">
+      <div class="archive-calendar-head">
+        <div class="archive-month-nav">
+          <button class="btn-icon" id="archPrevMonth" aria-label="Previous month">‹</button>
+          <button class="btn btn-ghost btn-sm" id="archTodayBtn">Today</button>
+        </div>
+        <h2 id="archMonthLabel">—</h2>
+        <div class="archive-month-nav">
+          <button class="btn-icon" id="archNextMonth" aria-label="Next month">›</button>
+        </div>
+      </div>
+      <div class="archive-grid" id="archiveGrid"></div>
+    </section>
+
+    <section class="section-card">
+      <h2 id="archDetailDate">Select a day</h2>
+      <p class="section-sub">What you wrote at the end of that day.</p>
+      <div id="archDetailBody"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./js/archive.js"></script>
+</body>
+</html>

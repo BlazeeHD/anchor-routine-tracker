@@ -20,6 +20,7 @@ export function renderNav(active) {
       <nav class="nav-links" id="navLinks">
         <a href="./app.html" class="${active === "dashboard" ? "is-active" : ""}">Dashboard</a>
         <a href="./routines.html" class="${active === "routines" ? "is-active" : ""}">My Routine</a>
+        <a href="./archive.html" class="${active === "archive" ? "is-active" : ""}">Archive</a>
         <a href="https://budgetapp.infinityfree.me/" target="_blank" rel="noopener noreferrer">Budget App ↗</a>
         <button class="nav-logout" id="logoutBtn" type="button">Log out</button>
       </nav>
