@@ -34,13 +34,18 @@
       </div>
       <div class="archive-grid" id="archiveGrid"></div>
     </section>
-
-    <section class="section-card">
-      <h2 id="archDetailDate">Select a day</h2>
-      <p class="section-sub">What you wrote at the end of that day.</p>
-      <div id="archDetailBody"></div>
-    </section>
   </main>
+
+  <!-- Day detail modal -->
+  <div class="modal-backdrop" id="noteModalBackdrop">
+    <div class="modal-card">
+      <h2 id="archDetailDate">—</h2>
+      <div id="archDetailBody"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="noteModalClose">Close</button>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./js/archive.js"></script>

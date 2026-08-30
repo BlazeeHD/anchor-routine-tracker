@@ -836,6 +836,8 @@ button, input, textarea, select {
   padding: 24px;
   width: 100%;
   max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
   box-shadow: var(--shadow-card);
 }
 .modal-card h2 { font-size: 1.1rem; margin-bottom: 18px; }

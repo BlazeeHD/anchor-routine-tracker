@@ -39,7 +39,6 @@ function escapeHtml(str) {
 // Init
 // ---------------------------------------------------------------------
 await renderMonth();
-showDetail(selectedDate);
 wireEvents();
 
 // ---------------------------------------------------------------------
@@ -104,15 +103,15 @@ async function renderMonth() {
       const clicked = new Date(y, m - 1, d);
       selectedDate = clicked;
       renderMonth();
-      showDetail(clicked);
+      openDetail(clicked);
     });
   });
 }
 
 // ---------------------------------------------------------------------
-// Detail panel
+// Detail modal
 // ---------------------------------------------------------------------
-function showDetail(date) {
+function openDetail(date) {
   const today = new Date();
   document.getElementById("archDetailDate").textContent = sameDay(date, today)
     ? "Today"
@@ -124,17 +123,21 @@ function showDetail(date) {
 
   if (!note || (!note.feedback && !note.mood)) {
     body.innerHTML = `<p class="archive-detail-empty">No reflection saved for this day.</p>`;
-    return;
+  } else {
+    const moodHtml = note.mood && MOOD_EMOJI[note.mood]
+      ? `<div class="archive-detail-mood">${MOOD_EMOJI[note.mood]}</div>`
+      : "";
+    const textHtml = note.feedback
+      ? `<div class="archive-detail-text">${escapeHtml(note.feedback)}</div>`
+      : `<p class="archive-detail-empty">Mood logged, no written note.</p>`;
+    body.innerHTML = moodHtml + textHtml;
   }
 
-  const moodHtml = note.mood && MOOD_EMOJI[note.mood]
-    ? `<div class="archive-detail-mood">${MOOD_EMOJI[note.mood]}</div>`
-    : "";
-  const textHtml = note.feedback
-    ? `<div class="archive-detail-text">${escapeHtml(note.feedback)}</div>`
-    : `<p class="archive-detail-empty">Mood logged, no written note.</p>`;
+  document.getElementById("noteModalBackdrop").classList.add("is-open");
+}
 
-  body.innerHTML = moodHtml + textHtml;
+function closeDetail() {
+  document.getElementById("noteModalBackdrop").classList.remove("is-open");
 }
 
 // ---------------------------------------------------------------------
@@ -153,6 +156,14 @@ function wireEvents() {
     cursor = startOfMonth(new Date());
     selectedDate = new Date();
     renderMonth();
-    showDetail(selectedDate);
+  });
+
+  const backdrop = document.getElementById("noteModalBackdrop");
+  document.getElementById("noteModalClose").addEventListener("click", closeDetail);
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) closeDetail();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeDetail();
   });
 }
