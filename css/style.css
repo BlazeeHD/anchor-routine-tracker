@@ -695,6 +695,99 @@ button, input, textarea, select {
 }
 
 /* ============================================================
+   Archive page — big month calendar + note detail panel
+   ============================================================ */
+.archive-calendar {
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 22px;
+}
+.archive-calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.archive-calendar-head h2 {
+  font-size: 1.05rem;
+  font-family: var(--font-display);
+  min-width: 150px;
+  text-align: center;
+}
+.archive-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.archive-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.archive-grid .dow-label {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  text-align: center;
+  padding-bottom: 4px;
+}
+.archive-day {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px solid var(--line-soft);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 6px 0 0 8px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.archive-day:hover { border-color: var(--text-muted); }
+.archive-day.is-today { border-color: var(--teal); }
+.archive-day.is-selected { background: var(--surface-3); border-color: var(--text); }
+.archive-day.is-empty-cell { background: transparent; border-color: transparent; cursor: default; }
+.archive-day .dot {
+  position: absolute;
+  bottom: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.archive-day .dot.great { background: var(--amber); }
+.archive-day .dot.okay { background: var(--slate); }
+.archive-day .dot.rough { background: var(--coral); }
+.archive-day .dot.note { background: var(--teal); }
+
+@media (max-width: 480px) {
+  .archive-day { font-size: 0.72rem; padding: 4px 0 0 5px; }
+}
+
+.archive-detail-date {
+  font-family: var(--font-mono);
+  color: var(--teal);
+  font-size: 0.8rem;
+  display: block;
+  margin-bottom: 8px;
+}
+.archive-detail-mood { font-size: 1.5rem; margin-bottom: 10px; }
+.archive-detail-text {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+.archive-detail-empty { color: var(--text-muted); font-size: 0.9rem; }
+
+/* ============================================================
    Routines manager page
    ============================================================ */
 .routine-row {
