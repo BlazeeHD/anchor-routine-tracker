@@ -1,0 +1,218 @@
+/* ============================================================
+   ANCHOR — Bootstrap 5 theme layer
+   Re-themes Bootstrap's own CSS variables (works with
+   data-bs-theme="dark" on <html>) instead of fighting them.
+   Everything below this comment is custom, for the handful of
+   pieces Bootstrap has no component for: the timeline rail and
+   the calendar day grids.
+   ============================================================ */
+:root {
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --amber: #f2b84b;
+  --amber-dim: rgba(242, 184, 75, .16);
+  --coral: #e8604c;
+  --coral-dim: rgba(232, 96, 76, .16);
+  --teal: #2fbfa3;
+  --teal-dim: rgba(47, 191, 163, .16);
+  --slate: #4a5568;
+  --surface-2: #232935;
+  --text-faint: #5b6472;
+
+  --bs-body-bg: #10131a;
+  --bs-body-color: #edeef2;
+  --bs-body-font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --bs-border-color: #2a303c;
+  --bs-border-color-translucent: rgba(255, 255, 255, .08);
+  --bs-secondary-color: #8b93a3;
+  --bs-tertiary-bg: #1b2028;
+  --bs-tertiary-color: #8b93a3;
+
+  --bs-primary: #2fbfa3;
+  --bs-primary-rgb: 47, 191, 163;
+  --bs-success: #f2b84b;
+  --bs-success-rgb: 242, 184, 75;
+  --bs-danger: #e8604c;
+  --bs-danger-rgb: 232, 96, 76;
+  --bs-secondary: #4a5568;
+  --bs-secondary-rgb: 74, 85, 104;
+  --bs-link-color: #2fbfa3;
+  --bs-link-color-rgb: 47, 191, 163;
+  --bs-link-hover-color: #3fd4b6;
+
+  --bs-card-bg: #1b2028;
+  --bs-card-border-color: #2a303c;
+  --bs-modal-bg: #1b2028;
+  --bs-modal-header-border-color: #2a303c;
+  --bs-modal-footer-border-color: #2a303c;
+  --bs-dropdown-bg: #1b2028;
+  --bs-dropdown-border-color: #2a303c;
+  --bs-dropdown-link-color: #edeef2;
+  --bs-dropdown-link-hover-bg: #232935;
+  --bs-dropdown-link-hover-color: #edeef2;
+  --bs-nav-tabs-link-active-bg: #1b2028;
+  --bs-nav-tabs-link-active-border-color: #2a303c #2a303c #1b2028;
+}
+
+body {
+  background-image: radial-gradient(circle at 12% -10%, rgba(47, 191, 163, .07), transparent 40%),
+    radial-gradient(circle at 88% 0%, rgba(242, 184, 75, .05), transparent 35%);
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand, .fw-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+.font-mono { font-family: var(--font-mono); }
+.text-teal { color: var(--teal) !important; }
+.text-amber { color: var(--amber) !important; }
+.text-coral { color: var(--coral) !important; }
+.text-faint { color: var(--text-faint) !important; }
+
+/* Form controls a shade lighter than the page for contrast */
+.form-control, .form-select {
+  background-color: var(--surface-2);
+  border-color: var(--bs-border-color);
+  color: var(--bs-body-color);
+}
+.form-control:focus, .form-select:focus {
+  background-color: var(--surface-2);
+  border-color: var(--teal);
+  box-shadow: 0 0 0 .2rem var(--teal-dim);
+  color: var(--bs-body-color);
+}
+.form-control::placeholder { color: var(--text-faint); }
+.form-control:disabled { background-color: var(--bs-tertiary-bg); }
+
+/* Amber (used as .btn-success) needs dark text to stay legible */
+.btn-success { color: #1a1300; font-weight: 600; }
+.btn-success:hover, .btn-success:focus { color: #1a1300; }
+.btn-outline-success { color: var(--amber); border-color: var(--amber); }
+.btn-outline-success:hover { background: var(--amber); color: #1a1300; }
+.btn-outline-danger:hover { color: #fff; }
+
+/* Brand mark dot in the navbar */
+.brand-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-dim);
+  display: inline-block;
+}
+
+/* ============================================================
+   Timeline — the signature element (no Bootstrap equivalent)
+   ============================================================ */
+.timeline { position: relative; padding-left: 30px; }
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 5px; top: 6px; bottom: 6px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--amber) 0%, var(--bs-border-color) 12%, var(--bs-border-color) 88%, var(--coral) 100%);
+  opacity: .5;
+}
+.tl-item { position: relative; margin-bottom: 14px; }
+.tl-node {
+  position: absolute; left: -30px; top: 18px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--bs-card-bg);
+  border: 2px solid var(--slate);
+  transition: border-color .15s ease, background .15s ease;
+}
+.tl-item.is-done .tl-node { background: var(--amber); border-color: var(--amber); }
+.tl-item.is-missed .tl-node { background: var(--coral); border-color: var(--coral); }
+
+.status-btn.is-active-done { background: var(--amber-dim) !important; border-color: var(--amber) !important; color: var(--amber) !important; }
+.status-btn.is-active-missed { background: var(--coral-dim) !important; border-color: var(--coral) !important; color: var(--coral) !important; }
+
+/* ============================================================
+   Calendar dropdown (dashboard) + Archive month grid
+   Both bootstrap-hosted (dropdown-menu / card) but the day
+   grid itself is bespoke — Bootstrap has no date picker.
+   ============================================================ */
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; width: 260px; }
+.cal-grid .dow { font-size: .64rem; color: var(--text-faint); text-align: center; padding-bottom: 2px; }
+.cal-day {
+  position: relative;
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--bs-body-color);
+  font-family: var(--font-mono);
+  font-size: .76rem;
+  padding: 0;
+}
+.cal-day:hover { border-color: var(--bs-border-color); }
+.cal-day.is-today { border-color: var(--teal); }
+.cal-day.is-selected { background: var(--surface-2); border-color: var(--bs-secondary-color); }
+.cal-day .dot { position: absolute; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; }
+.cal-day .dot.good { background: var(--amber); }
+.cal-day .dot.mid { background: var(--slate); }
+.cal-day .dot.bad { background: var(--coral); }
+
+.arch-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.arch-grid .dow { font-size: .7rem; color: var(--text-faint); text-align: center; padding-bottom: 4px; }
+.arch-day {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px solid var(--bs-border-color);
+  background: var(--surface-2);
+  color: var(--bs-body-color);
+  font-family: var(--font-mono);
+  font-size: .85rem;
+  display: flex; align-items: flex-start; justify-content: flex-start;
+  padding: 6px 0 0 8px;
+}
+.arch-day:hover { border-color: var(--bs-secondary-color); }
+.arch-day.is-today { border-color: var(--teal); }
+.arch-day.is-selected { background: var(--bs-card-bg); border-color: var(--bs-body-color); }
+.arch-day.is-empty { background: transparent; border-color: transparent; }
+.arch-day .dot { position: absolute; bottom: 7px; right: 7px; width: 7px; height: 7px; border-radius: 50%; }
+.arch-day .dot.great { background: var(--amber); }
+.arch-day .dot.okay { background: var(--slate); }
+.arch-day .dot.rough { background: var(--coral); }
+.arch-day .dot.note { background: var(--teal); }
+@media (max-width: 480px) {
+  .arch-day { font-size: .72rem; padding: 4px 0 0 5px; }
+}
+
+/* Advice list */
+.advice-item { border-left: 3px solid var(--teal); background: var(--surface-2); }
+.advice-tag { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+
+/* Legend dots on the stats card */
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.legend-dot.done { background: var(--amber); }
+.legend-dot.missed { background: var(--coral); }
+.legend-dot.pending { background: var(--slate); }
+
+/* Auth split brand rail */
+.auth-brand { background: linear-gradient(165deg, #141821 0%, #10131a 60%); min-height: 260px; }
+.auth-rail-track { border-left: 2px solid var(--bs-border-color); padding-left: 26px; }
+.auth-rail-item { position: relative; font-family: var(--font-mono); font-size: .82rem; color: var(--bs-secondary-color); }
+.auth-rail-item::before {
+  content: "";
+  position: absolute; left: -31px; top: 4px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--bs-card-bg);
+  border: 2px solid var(--slate);
+}
+.auth-rail-item.is-done::before { border-color: var(--amber); background: var(--amber); }
+.auth-rail-item strong { display: block; color: var(--bs-body-color); font-family: "Inter", sans-serif; font-size: .95rem; margin-top: 2px; }
+
+/* Routine row time chip */
+.rr-time { font-family: var(--font-mono); color: var(--teal); width: 64px; flex-shrink: 0; }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--teal);
+  display: block;
+  margin-bottom: 4px;
+}

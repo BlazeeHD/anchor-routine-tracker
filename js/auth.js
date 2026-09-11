@@ -6,31 +6,18 @@ if (existing.session) {
   window.location.href = "./app.html";
 }
 
-const tabSignIn = document.getElementById("tabSignIn");
-const tabSignUp = document.getElementById("tabSignUp");
+const formMessage = document.getElementById("formMessage");
 const signInForm = document.getElementById("signInForm");
 const signUpForm = document.getElementById("signUpForm");
-const formMessage = document.getElementById("formMessage");
-
-function showTab(tab) {
-  const isSignIn = tab === "signin";
-  tabSignIn.classList.toggle("is-active", isSignIn);
-  tabSignUp.classList.toggle("is-active", !isSignIn);
-  tabSignIn.setAttribute("aria-selected", String(isSignIn));
-  tabSignUp.setAttribute("aria-selected", String(!isSignIn));
-  signInForm.style.display = isSignIn ? "block" : "none";
-  signUpForm.style.display = isSignIn ? "none" : "block";
-  formMessage.innerHTML = "";
-}
-
-tabSignIn.addEventListener("click", () => showTab("signin"));
-tabSignUp.addEventListener("click", () => showTab("signup"));
 
 function setMessage(text, kind) {
   formMessage.innerHTML = text
-    ? `<div class="form-${kind}">${text}</div>`
+    ? `<div class="alert alert-${kind === "error" ? "danger" : "success"} py-2 small">${text}</div>`
     : "";
 }
+
+// Clear any message when switching tabs (tab switching itself is handled by Bootstrap)
+document.getElementById("authTabs").addEventListener("shown.bs.tab", () => setMessage("", "error"));
 
 signInForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -73,6 +60,6 @@ signUpForm.addEventListener("submit", async (e) => {
     window.location.href = "./app.html";
   } else {
     setMessage("Account created. Check your email to confirm, then sign in.", "success");
-    showTab("signin");
+    bootstrap.Tab.getOrCreateInstance(document.getElementById("tabSignIn")).show();
   }
 });

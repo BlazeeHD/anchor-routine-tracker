@@ -1,38 +1,41 @@
 import { sb } from "./supabaseClient.js";
 
 /**
- * Renders the top navigation bar into #site-header.
- * `active` is one of "dashboard" | "routines" used for the highlighted link.
+ * Renders a Bootstrap navbar into #site-header.
+ * `active` is one of "dashboard" | "routines" | "archive".
  */
 export function renderNav(active) {
   const host = document.getElementById("site-header");
   if (!host) return;
 
-  host.innerHTML = `
-    <div class="nav-inner">
-      <a class="nav-brand" href="./app.html">
-        <span class="nav-brand-mark" aria-hidden="true"></span>
-        Anchor
-      </a>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
-      <nav class="nav-links" id="navLinks">
-        <a href="./app.html" class="${active === "dashboard" ? "is-active" : ""}">Dashboard</a>
-        <a href="./routines.html" class="${active === "routines" ? "is-active" : ""}">My Routine</a>
-        <a href="./archive.html" class="${active === "archive" ? "is-active" : ""}">Archive</a>
-        <a href="https://budgetapp.infinityfree.me/" target="_blank" rel="noopener noreferrer">Budget App ↗</a>
-        <button class="nav-logout" id="logoutBtn" type="button">Log out</button>
-      </nav>
-    </div>
-  `;
+  const link = (href, label, key) =>
+    `<li class="nav-item"><a class="nav-link ${active === key ? "active fw-semibold text-teal" : ""}" href="${href}">${label}</a></li>`;
 
-  const toggle = document.getElementById("navToggle");
-  const links = document.getElementById("navLinks");
-  toggle.addEventListener("click", () => {
-    const open = links.classList.toggle("is-open");
-    toggle.setAttribute("aria-expanded", String(open));
-  });
+  host.innerHTML = `
+    <nav class="navbar navbar-expand-lg sticky-top border-bottom border-secondary-subtle" style="background: rgba(16,19,26,.85); backdrop-filter: blur(10px);">
+      <div class="container-fluid" style="max-width: 880px;">
+        <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" href="./app.html">
+          <span class="brand-dot"></span> Anchor
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navLinks" aria-label="Toggle menu">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navLinks">
+          <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
+            ${link("./app.html", "Dashboard", "dashboard")}
+            ${link("./routines.html", "My Routine", "routines")}
+            ${link("./archive.html", "Archive", "archive")}
+            <li class="nav-item">
+              <a class="nav-link" href="https://budgetapp.infinityfree.me/" target="_blank" rel="noopener noreferrer">Budget App ↗</a>
+            </li>
+            <li class="nav-item mt-2 mt-lg-0">
+              <button class="btn btn-outline-secondary btn-sm" id="logoutBtn" type="button">Log out</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  `;
 
   document.getElementById("logoutBtn").addEventListener("click", async () => {
     await sb.auth.signOut();

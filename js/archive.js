@@ -9,7 +9,7 @@ if (!user) throw new Error("redirecting to login");
 // State
 // ---------------------------------------------------------------------
 let cursor = startOfMonth(new Date());   // month currently shown
-let selectedDate = new Date();           // day shown in the detail panel
+let selectedDate = new Date();           // day shown in the detail modal
 let monthNotes = {};                     // iso date -> { feedback, mood }
 
 // ---------------------------------------------------------------------
@@ -34,6 +34,8 @@ function escapeHtml(str) {
   div.textContent = str || "";
   return div.innerHTML;
 }
+
+const noteModal = new bootstrap.Modal(document.getElementById("noteModal"));
 
 // ---------------------------------------------------------------------
 // Init
@@ -71,20 +73,20 @@ async function renderMonth() {
 
   const grid = document.getElementById("archiveGrid");
   const dows = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  let html = dows.map((d) => `<div class="dow-label">${d}</div>`).join("");
+  let html = dows.map((d) => `<div class="dow">${d}</div>`).join("");
 
   const firstDay = startOfMonth(cursor);
   const startOffset = firstDay.getDay();
   const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate();
   const today = new Date();
 
-  for (let i = 0; i < startOffset; i++) html += `<div class="archive-day is-empty-cell"></div>`;
+  for (let i = 0; i < startOffset; i++) html += `<div class="arch-day is-empty"></div>`;
 
   for (let day = 1; day <= daysInMonth; day++) {
     const cellDate = new Date(cursor.getFullYear(), cursor.getMonth(), day);
     const iso = toISODate(cellDate);
     const note = monthNotes[iso];
-    const classes = ["archive-day"];
+    const classes = ["arch-day"];
     if (sameDay(cellDate, today)) classes.push("is-today");
     if (sameDay(cellDate, selectedDate)) classes.push("is-selected");
 
@@ -97,7 +99,7 @@ async function renderMonth() {
   }
 
   grid.innerHTML = html;
-  grid.querySelectorAll(".archive-day[data-date]").forEach((btn) => {
+  grid.querySelectorAll(".arch-day[data-date]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const [y, m, d] = btn.dataset.date.split("-").map(Number);
       const clicked = new Date(y, m - 1, d);
@@ -122,22 +124,18 @@ function openDetail(date) {
   const body = document.getElementById("archDetailBody");
 
   if (!note || (!note.feedback && !note.mood)) {
-    body.innerHTML = `<p class="archive-detail-empty">No reflection saved for this day.</p>`;
+    body.innerHTML = `<p class="text-secondary-emphasis small mb-0">No reflection saved for this day.</p>`;
   } else {
     const moodHtml = note.mood && MOOD_EMOJI[note.mood]
-      ? `<div class="archive-detail-mood">${MOOD_EMOJI[note.mood]}</div>`
+      ? `<div class="fs-3 mb-2">${MOOD_EMOJI[note.mood]}</div>`
       : "";
     const textHtml = note.feedback
-      ? `<div class="archive-detail-text">${escapeHtml(note.feedback)}</div>`
-      : `<p class="archive-detail-empty">Mood logged, no written note.</p>`;
+      ? `<div style="white-space: pre-wrap;">${escapeHtml(note.feedback)}</div>`
+      : `<p class="text-secondary-emphasis small mb-0">Mood logged, no written note.</p>`;
     body.innerHTML = moodHtml + textHtml;
   }
 
-  document.getElementById("noteModalBackdrop").classList.add("is-open");
-}
-
-function closeDetail() {
-  document.getElementById("noteModalBackdrop").classList.remove("is-open");
+  noteModal.show();
 }
 
 // ---------------------------------------------------------------------
@@ -156,14 +154,5 @@ function wireEvents() {
     cursor = startOfMonth(new Date());
     selectedDate = new Date();
     renderMonth();
-  });
-
-  const backdrop = document.getElementById("noteModalBackdrop");
-  document.getElementById("noteModalClose").addEventListener("click", closeDetail);
-  backdrop.addEventListener("click", (e) => {
-    if (e.target === backdrop) closeDetail();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeDetail();
   });
 }

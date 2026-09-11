@@ -7,10 +7,12 @@ if (!user) throw new Error("redirecting to login");
 
 const listHost = document.getElementById("routineList");
 const emptyState = document.getElementById("emptyState");
-const modalBackdrop = document.getElementById("modalBackdrop");
 const modalTitle = document.getElementById("modalTitle");
 const modalError = document.getElementById("modalError");
 const form = document.getElementById("routineForm");
+
+const routineModalEl = document.getElementById("routineModal");
+const routineModal = new bootstrap.Modal(routineModalEl);
 
 function fmtTime(t) {
   // t is "HH:MM:SS" from Postgres time type
@@ -18,6 +20,12 @@ function fmtTime(t) {
   const period = h >= 12 ? "PM" : "AM";
   const h12 = h % 12 === 0 ? 12 : h % 12;
   return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 async function loadRoutines() {
@@ -28,30 +36,32 @@ async function loadRoutines() {
     .order("time", { ascending: true });
 
   if (error) {
-    listHost.innerHTML = `<div class="form-error">Couldn't load your routine: ${error.message}</div>`;
+    listHost.innerHTML = `<div class="alert alert-danger">Couldn't load your routine: ${error.message}</div>`;
     return;
   }
 
   if (!data.length) {
     listHost.innerHTML = "";
-    emptyState.style.display = "block";
+    emptyState.classList.remove("d-none");
     return;
   }
-  emptyState.style.display = "none";
+  emptyState.classList.add("d-none");
 
   listHost.innerHTML = data
     .map(
       (r) => `
-      <div class="routine-row" data-id="${r.id}">
-        <div class="rr-time">${fmtTime(r.time)}</div>
-        <div class="rr-body">
-          <div class="rr-title">${escapeHtml(r.title)}</div>
-          ${r.description ? `<div class="rr-desc">${escapeHtml(r.description)}</div>` : ""}
-          <div class="rr-meta">${r.duration_minutes} min</div>
-        </div>
-        <div class="rr-actions">
-          <button class="btn btn-ghost btn-sm edit-btn" data-id="${r.id}">Edit</button>
-          <button class="btn btn-danger btn-sm delete-btn" data-id="${r.id}">Delete</button>
+      <div class="card" data-id="${r.id}">
+        <div class="card-body d-flex align-items-center gap-3 flex-wrap">
+          <div class="rr-time">${fmtTime(r.time)}</div>
+          <div class="flex-grow-1" style="min-width: 160px;">
+            <div class="fw-semibold">${escapeHtml(r.title)}</div>
+            ${r.description ? `<div class="text-secondary-emphasis small">${escapeHtml(r.description)}</div>` : ""}
+            <div class="font-mono text-faint small mt-1">${r.duration_minutes} min</div>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm edit-btn" data-id="${r.id}">Edit</button>
+            <button class="btn btn-outline-danger btn-sm delete-btn" data-id="${r.id}">Delete</button>
+          </div>
         </div>
       </div>`
     )
@@ -65,12 +75,6 @@ async function loadRoutines() {
   );
 }
 
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
-
 function openModal(routine) {
   modalError.innerHTML = "";
   form.reset();
@@ -80,20 +84,11 @@ function openModal(routine) {
   document.getElementById("rDuration").value = routine ? routine.duration_minutes : 30;
   document.getElementById("rTitle").value = routine ? routine.title : "";
   document.getElementById("rDesc").value = routine ? routine.description || "" : "";
-  modalBackdrop.classList.add("is-open");
-  document.getElementById("rTime").focus();
-}
-
-function closeModal() {
-  modalBackdrop.classList.remove("is-open");
+  routineModal.show();
 }
 
 document.getElementById("addRoutineBtn").addEventListener("click", () => openModal(null));
 document.getElementById("emptyAddBtn").addEventListener("click", () => openModal(null));
-document.getElementById("modalCancel").addEventListener("click", closeModal);
-modalBackdrop.addEventListener("click", (e) => {
-  if (e.target === modalBackdrop) closeModal();
-});
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -119,10 +114,10 @@ form.addEventListener("submit", async (e) => {
   saveBtn.disabled = false;
 
   if (error) {
-    modalError.innerHTML = `<div class="form-error">${error.message}</div>`;
+    modalError.innerHTML = `<div class="alert alert-danger py-2 small">${error.message}</div>`;
     return;
   }
-  closeModal();
+  routineModal.hide();
   loadRoutines();
 });
 

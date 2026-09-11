@@ -1,90 +1,122 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Anchor — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./css/style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/theme.css" />
 </head>
 <body>
-  <header class="site-header" id="site-header"></header>
+  <header id="site-header"></header>
 
-  <main class="page">
-    <div class="page-head">
+  <main class="container py-4" style="max-width: 880px;">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
       <div>
         <span class="eyebrow">Today's plan</span>
-        <h1 id="pageTitle">Dashboard</h1>
+        <h1 class="h4 mb-0" id="pageTitle">Dashboard</h1>
       </div>
 
-      <div class="date-control">
-        <button class="btn-icon" id="prevDay" aria-label="Previous day">‹</button>
-        <button class="date-label" id="dateLabelBtn" aria-haspopup="true" aria-expanded="false">
-          <span class="dow" id="dateLabelDow">—</span>
-          <span id="dateLabelDate">—</span>
-        </button>
-        <button class="btn-icon" id="nextDay" aria-label="Next day">›</button>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-secondary btn-sm" id="prevDay" aria-label="Previous day">‹</button>
 
-        <div class="calendar-pop" id="calendarPop">
-          <div class="calendar-pop-head">
-            <button class="btn-icon" id="calPrevMonth" aria-label="Previous month" style="width:28px;height:28px;">‹</button>
-            <span id="calMonthLabel">—</span>
-            <button class="btn-icon" id="calNextMonth" aria-label="Next month" style="width:28px;height:28px;">›</button>
+        <div class="dropdown" id="calendarDropdown">
+          <button class="btn btn-outline-secondary btn-sm font-mono dropdown-toggle" type="button" id="dateLabelBtn" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+            <span id="dateLabelDow">—</span> <span id="dateLabelDate">—</span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end p-3" id="calendarPop">
+            <div class="d-flex align-items-center justify-content-between mb-2 gap-3">
+              <button class="btn btn-sm btn-outline-secondary" id="calPrevMonth" type="button" aria-label="Previous month">‹</button>
+              <span class="font-mono small" id="calMonthLabel">—</span>
+              <button class="btn btn-sm btn-outline-secondary" id="calNextMonth" type="button" aria-label="Next month">›</button>
+            </div>
+            <div class="cal-grid" id="calendarGrid"></div>
           </div>
-          <div class="calendar-grid" id="calendarGrid"></div>
         </div>
+
+        <button class="btn btn-outline-secondary btn-sm" id="nextDay" aria-label="Next day">›</button>
       </div>
     </div>
 
     <!-- Stats -->
-    <section class="stats-card">
-      <div class="stats-top">
-        <div class="big-pct"><span id="statPct">0%</span> <span>completed today</span></div>
-        <div class="stats-legend">
-          <span><span class="dot done"></span><span id="statDoneMin">0m</span> kept</span>
-          <span><span class="dot missed"></span><span id="statMissedMin">0m</span> missed</span>
-          <span><span class="dot pending"></span><span id="statPendingCount">0</span> pending</span>
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
+          <div class="font-mono fs-3">
+            <span id="statPct">0%</span> <span class="fs-6 text-secondary-emphasis">completed today</span>
+          </div>
+          <div class="d-flex flex-wrap gap-3 small font-mono text-secondary-emphasis">
+            <span><span class="legend-dot done"></span><span id="statDoneMin">0m</span> kept</span>
+            <span><span class="legend-dot missed"></span><span id="statMissedMin">0m</span> missed</span>
+            <span><span class="legend-dot pending"></span><span id="statPendingCount">0</span> pending</span>
+          </div>
+        </div>
+        <div class="progress" style="height: 10px;" role="progressbar" aria-label="Time kept vs missed today">
+          <div class="progress-bar bg-success" id="segDone" style="width: 0%"></div>
+          <div class="progress-bar bg-danger" id="segMissed" style="width: 0%"></div>
         </div>
       </div>
-      <div class="stats-split">
-        <div class="seg-done" id="segDone" style="width:0%"></div>
-        <div class="seg-missed" id="segMissed" style="width:0%"></div>
-      </div>
-    </section>
+    </div>
 
     <!-- Timeline -->
-    <div id="timelineWrap"></div>
+    <div id="timelineWrap" class="mb-4"></div>
 
-    <!-- End of day feedback -->
-    <section class="section-card">
-      <h2>End-of-day reflection</h2>
-      <p class="section-sub">Optional — a few words on how the day actually went.</p>
-      <div id="feedbackMsg"></div>
-      <div class="field">
-        <label for="feedbackText">What happened today?</label>
-        <textarea id="feedbackText" placeholder="e.g. Slept late so the morning routine slipped, but I caught up by noon…"></textarea>
+    <!-- End-of-day reflection trigger -->
+    <div class="card mb-4">
+      <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <h2 class="h6 mb-1">End-of-day reflection</h2>
+          <p class="text-secondary-emphasis small mb-0" id="feedbackPreview">Optional — a few words on how the day actually went.</p>
+        </div>
+        <button class="btn btn-outline-primary btn-sm flex-shrink-0" data-bs-toggle="modal" data-bs-target="#feedbackModal">Write reflection</button>
       </div>
-      <div class="field" style="max-width:220px;">
-        <label for="moodSelect">Mood</label>
-        <select id="moodSelect">
-          <option value="">Skip</option>
-          <option value="great">🙂 Great</option>
-          <option value="okay">😐 Okay</option>
-          <option value="rough">🙁 Rough</option>
-        </select>
-      </div>
-      <button class="btn btn-primary" id="saveFeedback">Save reflection</button>
-    </section>
+    </div>
 
     <!-- Advice -->
-    <section class="section-card">
-      <h2>Suggestions for tomorrow</h2>
-      <p class="section-sub">Generated from your recent completion patterns.</p>
-      <ul class="advice-list" id="adviceList"></ul>
-    </section>
+    <div class="card mb-4">
+      <div class="card-body">
+        <h2 class="h6 mb-1">Suggestions for tomorrow</h2>
+        <p class="text-secondary-emphasis small mb-3">Generated from your recent completion patterns.</p>
+        <ul class="list-unstyled d-flex flex-column gap-2 mb-0" id="adviceList"></ul>
+      </div>
+    </div>
   </main>
 
+  <!-- Feedback modal -->
+  <div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5 mb-0">End-of-day reflection</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="feedbackMsg"></div>
+          <div class="mb-3">
+            <label for="feedbackText" class="form-label small text-secondary-emphasis">What happened today?</label>
+            <textarea id="feedbackText" class="form-control" rows="4" placeholder="e.g. Slept late so the morning routine slipped, but I caught up by noon…"></textarea>
+          </div>
+          <div class="mb-1" style="max-width: 220px;">
+            <label for="moodSelect" class="form-label small text-secondary-emphasis">Mood</label>
+            <select id="moodSelect" class="form-select">
+              <option value="">Skip</option>
+              <option value="great">🙂 Great</option>
+              <option value="okay">😐 Okay</option>
+              <option value="rough">🙁 Rough</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveFeedback">Save reflection</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./js/dashboard.js"></script>
 </body>

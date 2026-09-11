@@ -12,7 +12,7 @@ if (!user) throw new Error("redirecting to login");
 let routines = [];               // active routine templates, sorted by time
 let logsForDay = {};             // routine_id -> log row for selectedDate
 let selectedDate = new Date();   // local date being viewed
-let calCursor = startOfMonth(selectedDate); // month currently shown in popover
+let calCursor = startOfMonth(selectedDate); // month currently shown in the calendar dropdown
 
 // ---------------------------------------------------------------------
 // Date helpers (all local time, never UTC, so Postgres `date` matches
@@ -32,20 +32,21 @@ function addDays(d, n) { const copy = new Date(d); copy.setDate(copy.getDate() +
 function addMonths(d, n) { return new Date(d.getFullYear(), d.getMonth() + n, 1); }
 
 // ---------------------------------------------------------------------
-// DOM refs
+// DOM refs + Bootstrap component instances
 // ---------------------------------------------------------------------
 const timelineWrap = document.getElementById("timelineWrap");
 const dateLabelDow = document.getElementById("dateLabelDow");
 const dateLabelDate = document.getElementById("dateLabelDate");
-const calendarPop = document.getElementById("calendarPop");
 const dateLabelBtn = document.getElementById("dateLabelBtn");
+
+const feedbackModalEl = document.getElementById("feedbackModal");
+const feedbackModal = new bootstrap.Modal(feedbackModalEl);
 
 // ---------------------------------------------------------------------
 // Init
 // ---------------------------------------------------------------------
 await loadRoutines();
 await loadDay(selectedDate);
-renderCalendarPopover();
 wireEvents();
 
 // ---------------------------------------------------------------------
@@ -58,7 +59,7 @@ async function loadRoutines() {
     .eq("active", true)
     .order("time", { ascending: true });
   if (error) {
-    timelineWrap.innerHTML = `<div class="form-error">Couldn't load your routine: ${error.message}</div>`;
+    timelineWrap.innerHTML = `<div class="alert alert-danger">Couldn't load your routine: ${error.message}</div>`;
     return;
   }
   routines = data || [];
@@ -116,8 +117,8 @@ function escapeHtml(str) {
 function renderTimeline() {
   if (routines.length === 0) {
     timelineWrap.innerHTML = `
-      <div class="timeline-empty">
-        <p>You haven't set up a routine yet.</p>
+      <div class="text-center border border-secondary-subtle rounded-4 p-5">
+        <p class="text-secondary-emphasis mb-3">You haven't set up a routine yet.</p>
         <a class="btn btn-primary" href="./routines.html">+ Build your routine</a>
       </div>`;
     return;
@@ -129,40 +130,40 @@ function renderTimeline() {
       const status = log ? log.status : "pending";
       const reason = log ? log.reason || "" : "";
       return `
-        <div class="tl-item is-${status}" data-routine-id="${r.id}">
+        <div class="card tl-item is-${status}" data-routine-id="${r.id}">
           <div class="tl-node"></div>
-          <div class="tl-card">
-            <div class="tl-card-top">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start gap-3">
               <div>
-                <span class="tl-time">${fmtTime(r.time)}</span>
-                <div class="tl-title">${escapeHtml(r.title)}</div>
-                ${r.description ? `<div class="tl-desc">${escapeHtml(r.description)}</div>` : ""}
+                <span class="font-mono small text-teal d-block mb-1">${fmtTime(r.time)}</span>
+                <div class="fw-semibold">${escapeHtml(r.title)}</div>
+                ${r.description ? `<div class="text-secondary-emphasis small mt-1">${escapeHtml(r.description)}</div>` : ""}
               </div>
-              <div class="tl-duration">${r.duration_minutes}m</div>
+              <div class="font-mono text-faint small text-nowrap">${r.duration_minutes}m</div>
             </div>
-            <div class="tl-actions">
-              <button class="tl-status-btn done-btn ${status === "done" ? "is-active" : ""}" data-action="done">Did it</button>
-              <button class="tl-status-btn missed-btn ${status === "missed" ? "is-active" : ""}" data-action="missed">Missed it</button>
-              <button class="tl-note-toggle" data-action="toggle-note">${reason ? "Edit note" : "Add note"}</button>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+              <button class="btn btn-sm btn-outline-success status-btn ${status === "done" ? "is-active-done" : ""}" data-action="done">Did it</button>
+              <button class="btn btn-sm btn-outline-danger status-btn ${status === "missed" ? "is-active-missed" : ""}" data-action="missed">Missed it</button>
+              <button class="btn btn-sm btn-link text-secondary-emphasis text-decoration-underline p-0 ms-1" data-action="toggle-note">${reason ? "Edit note" : "Add note"}</button>
             </div>
-            <div class="tl-note-box ${reason ? "is-open" : ""}" data-note-box>
-              <textarea placeholder="Optional — why (or why not)?">${escapeHtml(reason)}</textarea>
-              <button class="btn btn-ghost btn-sm" data-action="save-note">Save note</button>
-              <span class="tl-note-saved" data-note-saved style="display:none;">Saved</span>
+            <div class="mt-3 ${reason ? "" : "d-none"}" data-note-box>
+              <textarea class="form-control form-control-sm mb-2" rows="2" placeholder="Optional — why (or why not)?">${escapeHtml(reason)}</textarea>
+              <button class="btn btn-outline-secondary btn-sm" data-action="save-note">Save note</button>
+              <span class="small text-teal ms-2 d-none" data-note-saved>Saved</span>
             </div>
           </div>
         </div>`;
     })
     .join("");
 
-  timelineWrap.innerHTML = `<div class="timeline">${items}</div>`;
+  timelineWrap.innerHTML = `<div class="timeline d-flex flex-column gap-3">${items}</div>`;
 
   timelineWrap.querySelectorAll(".tl-item").forEach((el) => {
     const routineId = el.dataset.routineId;
     el.querySelector('[data-action="done"]').addEventListener("click", () => setStatus(routineId, "done"));
     el.querySelector('[data-action="missed"]').addEventListener("click", () => setStatus(routineId, "missed"));
     el.querySelector('[data-action="toggle-note"]').addEventListener("click", () => {
-      el.querySelector("[data-note-box]").classList.toggle("is-open");
+      el.querySelector("[data-note-box]").classList.toggle("d-none");
     });
     el.querySelector('[data-action="save-note"]').addEventListener("click", () => saveNote(routineId, el));
   });
@@ -190,7 +191,6 @@ async function setStatus(routineId, newStatus) {
   renderTimeline();
   renderStats();
   loadAdvice();
-  refreshCalendarDot();
 }
 
 async function saveNote(routineId, itemEl) {
@@ -212,8 +212,8 @@ async function saveNote(routineId, itemEl) {
   }
   logsForDay[routineId] = data;
   const savedTag = itemEl.querySelector("[data-note-saved]");
-  savedTag.style.display = "inline";
-  setTimeout(() => (savedTag.style.display = "none"), 1500);
+  savedTag.classList.remove("d-none");
+  setTimeout(() => savedTag.classList.add("d-none"), 1500);
 }
 
 // ---------------------------------------------------------------------
@@ -242,12 +242,13 @@ function renderStats() {
 }
 
 // ---------------------------------------------------------------------
-// Feedback
+// Feedback (modal)
 // ---------------------------------------------------------------------
 async function loadFeedback(dateStr) {
   const feedbackText = document.getElementById("feedbackText");
   const moodSelect = document.getElementById("moodSelect");
   const msg = document.getElementById("feedbackMsg");
+  const preview = document.getElementById("feedbackPreview");
   msg.innerHTML = "";
 
   const { data } = await sb
@@ -258,6 +259,16 @@ async function loadFeedback(dateStr) {
 
   feedbackText.value = data?.feedback || "";
   moodSelect.value = data?.mood || "";
+
+  const moodEmoji = { great: "🙂", okay: "😐", rough: "🙁" };
+  if (data?.feedback) {
+    const trimmed = data.feedback.length > 90 ? data.feedback.slice(0, 90) + "…" : data.feedback;
+    preview.textContent = `${data.mood ? moodEmoji[data.mood] + " " : ""}${trimmed}`;
+  } else if (data?.mood) {
+    preview.textContent = `${moodEmoji[data.mood]} Mood logged, no written note.`;
+  } else {
+    preview.textContent = "Optional — a few words on how the day actually went.";
+  }
 }
 
 document.getElementById("saveFeedback").addEventListener("click", async () => {
@@ -276,10 +287,13 @@ document.getElementById("saveFeedback").addEventListener("click", async () => {
     );
 
   btn.disabled = false;
-  msg.innerHTML = error
-    ? `<div class="form-error">${error.message}</div>`
-    : `<div class="form-success">Reflection saved.</div>`;
-  setTimeout(() => (msg.innerHTML = ""), 2500);
+  if (error) {
+    msg.innerHTML = `<div class="alert alert-danger py-2 small">${error.message}</div>`;
+    return;
+  }
+  msg.innerHTML = `<div class="alert alert-success py-2 small">Reflection saved.</div>`;
+  await loadFeedback(dateStr);
+  setTimeout(() => feedbackModal.hide(), 700);
 });
 
 // ---------------------------------------------------------------------
@@ -318,13 +332,13 @@ async function loadAdvice() {
   const advice = generateAdvice(today, recentLogs, routines);
   adviceList.innerHTML = advice
     .map(
-      (a) => `<li class="advice-item"><div><span class="advice-tag">${a.tag}</span>${escapeHtml(a.text)}</div></li>`
+      (a) => `<li class="advice-item rounded-3 p-3 small d-flex gap-2 align-items-start"><div><span class="advice-tag d-block mb-1">${a.tag}</span>${escapeHtml(a.text)}</div></li>`
     )
     .join("");
 }
 
 // ---------------------------------------------------------------------
-// Calendar popover
+// Calendar dropdown
 // ---------------------------------------------------------------------
 async function renderCalendarPopover() {
   document.getElementById("calMonthLabel").textContent = calCursor.toLocaleDateString(undefined, {
@@ -334,7 +348,7 @@ async function renderCalendarPopover() {
 
   const grid = document.getElementById("calendarGrid");
   const dows = ["S", "M", "T", "W", "T", "F", "S"];
-  let html = dows.map((d) => `<div class="dow-label">${d}</div>`).join("");
+  let html = dows.map((d) => `<div class="dow">${d}</div>`).join("");
 
   const firstDay = startOfMonth(calCursor);
   const startOffset = firstDay.getDay();
@@ -346,7 +360,7 @@ async function renderCalendarPopover() {
   for (let day = 1; day <= daysInMonth; day++) {
     const cellDate = new Date(calCursor.getFullYear(), calCursor.getMonth(), day);
     const iso = toISODate(cellDate);
-    const classes = ["calendar-day"];
+    const classes = ["cal-day"];
     if (sameDay(cellDate, today)) classes.push("is-today");
     if (sameDay(cellDate, selectedDate)) classes.push("is-selected");
     const ratio = monthDots[iso];
@@ -359,11 +373,11 @@ async function renderCalendarPopover() {
   }
 
   grid.innerHTML = html;
-  grid.querySelectorAll(".calendar-day").forEach((btn) => {
+  grid.querySelectorAll(".cal-day[data-date]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const [y, m, d] = btn.dataset.date.split("-").map(Number);
       loadDay(new Date(y, m - 1, d));
-      closeCalendar();
+      bootstrap.Dropdown.getOrCreateInstance(dateLabelBtn).hide();
     });
   });
 }
@@ -391,23 +405,6 @@ async function fetchMonthCompletion(monthDate) {
   return ratios;
 }
 
-function refreshCalendarDot() {
-  if (calCursor.getFullYear() === selectedDate.getFullYear() && calCursor.getMonth() === selectedDate.getMonth()) {
-    renderCalendarPopover();
-  }
-}
-
-function openCalendar() {
-  calCursor = startOfMonth(selectedDate);
-  renderCalendarPopover();
-  calendarPop.classList.add("is-open");
-  dateLabelBtn.setAttribute("aria-expanded", "true");
-}
-function closeCalendar() {
-  calendarPop.classList.remove("is-open");
-  dateLabelBtn.setAttribute("aria-expanded", "false");
-}
-
 // ---------------------------------------------------------------------
 // Event wiring
 // ---------------------------------------------------------------------
@@ -415,18 +412,19 @@ function wireEvents() {
   document.getElementById("prevDay").addEventListener("click", () => loadDay(addDays(selectedDate, -1)));
   document.getElementById("nextDay").addEventListener("click", () => loadDay(addDays(selectedDate, 1)));
 
-  dateLabelBtn.addEventListener("click", () => {
-    calendarPop.classList.contains("is-open") ? closeCalendar() : openCalendar();
-  });
-  document.addEventListener("click", (e) => {
-    if (!calendarPop.contains(e.target) && !dateLabelBtn.contains(e.target)) closeCalendar();
+  // Reset the calendar to the selected date's month each time it's opened
+  document.getElementById("calendarDropdown").addEventListener("show.bs.dropdown", () => {
+    calCursor = startOfMonth(selectedDate);
+    renderCalendarPopover();
   });
 
-  document.getElementById("calPrevMonth").addEventListener("click", () => {
+  document.getElementById("calPrevMonth").addEventListener("click", (e) => {
+    e.stopPropagation();
     calCursor = addMonths(calCursor, -1);
     renderCalendarPopover();
   });
-  document.getElementById("calNextMonth").addEventListener("click", () => {
+  document.getElementById("calNextMonth").addEventListener("click", (e) => {
+    e.stopPropagation();
     calCursor = addMonths(calCursor, 1);
     renderCalendarPopover();
   });

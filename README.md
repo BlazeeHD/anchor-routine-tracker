@@ -2,27 +2,41 @@
 
 A time-anchored daily routine tracker: plan your day hour by hour, mark each
 block as done or missed, leave optional notes and an end-of-day reflection,
-and get rule-based advice on your patterns. Calendar view included. No
-build step — plain HTML/CSS/JS, hosted on Cloudflare Pages, backed by
-Supabase (Postgres + Auth).
+and get rule-based advice on your patterns. Calendar view and a monthly
+notes archive included. Built on **Bootstrap 5** (grid, navbar, cards,
+modals, dropdown, progress bar) with a small theme layer on top — no build
+step, hosted on Cloudflare, backed by Supabase (Postgres + Auth).
 
 ## What's in here
 
 ```
-index.html        redirects to /app or /login depending on session
-login.html         sign in / create account
-app.html            dashboard: date nav, calendar, timeline, feedback, advice
-routines.html       manage your recurring time blocks (add/edit/delete)
-css/style.css       all styling
-js/config.js         <- put your Supabase URL + anon key here
-js/supabaseClient.js  creates the shared Supabase client
-js/nav.js             shared header + auth guard
-js/auth.js             login/register logic
-js/dashboard.js        the main app page logic
-js/routines.js          routine CRUD logic
-js/advice.js             rule-based advice engine
-supabase/schema.sql       run this once in Supabase
+index.html         redirects to /app or /login depending on session
+login.html          sign in / create account (Bootstrap nav-tabs)
+app.html             dashboard: date nav, calendar dropdown, timeline,
+                      reflection modal, advice
+routines.html         manage your recurring time blocks (Bootstrap modal)
+archive.html            monthly calendar of past reflections (modal on click)
+css/theme.css            re-themes Bootstrap's CSS variables to Anchor's
+                          palette, plus the timeline rail & calendar grids
+                          (the only pieces Bootstrap has no component for)
+js/config.js              <- put your Supabase URL + anon key here
+js/supabaseClient.js       creates the shared Supabase client
+js/nav.js                   shared Bootstrap navbar + auth guard
+js/auth.js                   login/register logic
+js/dashboard.js                the main app page logic
+js/routines.js                  routine CRUD logic
+js/archive.js                    archive page logic
+js/advice.js                      rule-based advice engine
+supabase/schema.sql                run this once in Supabase
 ```
+
+Every form in the app — add/edit routine, end-of-day reflection, archive
+day detail — is a real Bootstrap `Modal` instance driven from JS
+(`new bootstrap.Modal(...)`), not custom popup CSS. The calendar on the
+dashboard lives inside a Bootstrap `Dropdown`. The stats bar uses
+Bootstrap's `.progress` component. Everything else (grid, cards, forms,
+buttons, navbar, alerts) is stock Bootstrap 5 classes, re-themed via CSS
+variables in `theme.css` rather than overridden with custom rules.
 
 ## 1. Create your Supabase project
 
