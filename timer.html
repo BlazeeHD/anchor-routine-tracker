@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anchor — Timer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/theme.css" />
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container py-4" style="max-width: 880px;">
+    <div class="mb-1">
+      <span class="eyebrow">Duty &amp; break tracking</span>
+      <h1 class="h4 mb-0">Timer</h1>
+    </div>
+    <p class="text-secondary-emphasis small mb-4">Start a break or duty block, get a countdown to when you're due back, and a heads-up 10 minutes before.</p>
+
+    <!-- Active break, shown only while one is running -->
+    <div id="activeBreakWrap" class="d-none"></div>
+
+    <!-- Start form, shown only when nothing is active -->
+    <div id="startBreakCard" class="card mb-4">
+      <div class="card-body">
+        <h2 class="h6 mb-3">Start a break</h2>
+
+        <div class="d-flex flex-wrap gap-2 mb-3" id="labelChips"></div>
+
+        <div class="mb-3 d-none" id="customLabelWrap">
+          <label for="customLabel" class="form-label small text-secondary-emphasis">Custom label</label>
+          <input type="text" id="customLabel" class="form-control" placeholder="e.g. Doctor's appointment" />
+        </div>
+
+        <div class="row g-3 align-items-end mb-3">
+          <div class="col-6 col-sm-4">
+            <label for="startTimeInput" class="form-label small text-secondary-emphasis">Start time</label>
+            <input type="time" id="startTimeInput" class="form-control" />
+          </div>
+          <div class="col-6 col-sm-4">
+            <label for="durationInput" class="form-label small text-secondary-emphasis">Duration (min)</label>
+            <input type="number" id="durationInput" class="form-control" min="1" step="5" value="60" />
+          </div>
+          <div class="col-12 col-sm-4">
+            <div class="font-mono small text-secondary-emphasis">Back at <span id="returnPreview" class="text-teal">—</span></div>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <button type="button" class="btn btn-sm btn-outline-secondary duration-pill" data-min="15">15m</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary duration-pill" data-min="30">30m</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary duration-pill" data-min="60">1h</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary duration-pill" data-min="90">1h 30m</button>
+        </div>
+
+        <div id="startError"></div>
+        <button class="btn btn-primary" id="startBreakBtn">Start break</button>
+      </div>
+    </div>
+
+    <!-- Today's history -->
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h6 mb-1">Today's breaks</h2>
+        <p class="text-secondary-emphasis small mb-3">Everything you've logged today.</p>
+        <div id="breakHistory" class="d-flex flex-column gap-2"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./js/timer.js"></script>
+</body>
+</html>

@@ -207,6 +207,52 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .fw-display {
 /* Routine row time chip */
 .rr-time { font-family: var(--font-mono); color: var(--teal); width: 64px; flex-shrink: 0; }
 
+/* Category badges — Work/Break/Health/Other, distinct from status colors */
+:root {
+  --cat-personal: var(--teal);
+  --cat-work: #5b8def;
+  --cat-work-dim: rgba(91, 141, 239, .16);
+  --cat-break: #c792ea;
+  --cat-break-dim: rgba(199, 146, 234, .16);
+  --cat-health: #7ee081;
+  --cat-health-dim: rgba(126, 224, 129, .16);
+  --cat-other: var(--slate);
+}
+.cat-badge {
+  font-family: var(--font-mono);
+  font-size: .66rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: .15rem .55rem;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.cat-badge.cat-personal { color: var(--teal); border-color: var(--teal); background: var(--teal-dim); }
+.cat-badge.cat-work { color: var(--cat-work); border-color: var(--cat-work); background: var(--cat-work-dim); }
+.cat-badge.cat-break { color: var(--cat-break); border-color: var(--cat-break); background: var(--cat-break-dim); }
+.cat-badge.cat-health { color: var(--cat-health); border-color: var(--cat-health); background: var(--cat-health-dim); }
+.cat-badge.cat-other { color: var(--cat-other); border-color: var(--cat-other); background: rgba(74, 85, 104, .16); }
+
+/* Filter pills above the dashboard timeline */
+.filter-pill {
+  font-family: var(--font-mono);
+  font-size: .74rem;
+  padding: .3rem .8rem;
+  border-radius: 999px;
+  border: 1px solid var(--bs-border-color);
+  background: transparent;
+  color: var(--bs-secondary-color);
+  transition: all .15s ease;
+}
+.filter-pill:hover { border-color: var(--bs-secondary-color); color: var(--bs-body-color); }
+.filter-pill.is-active {
+  background: var(--surface-2);
+  color: var(--bs-body-color);
+  border-color: var(--bs-body-color);
+}
+.filter-pill .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+
 .eyebrow {
   font-family: var(--font-mono);
   font-size: .72rem;

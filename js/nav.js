@@ -24,6 +24,7 @@ export function renderNav(active) {
           <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
             ${link("./app.html", "Dashboard", "dashboard")}
             ${link("./routines.html", "My Routine", "routines")}
+            ${link("./timer.html", "Timer", "timer")}
             ${link("./archive.html", "Archive", "archive")}
             <li class="nav-item">
               <a class="nav-link" href="https://budgetapp.infinityfree.me/" target="_blank" rel="noopener noreferrer">Budget App ↗</a>

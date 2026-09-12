@@ -106,6 +106,36 @@ Then open the printed local URL in your browser.
   call, no cost. It looks for your most-missed block, whether mornings or
   evenings slip more, and completion streaks.
 
+## Categories — using Anchor for work, not just personal routines
+
+Every time block now has a **category**: Personal, Work, Break, Health, or
+Other. Use Work for duty hours, Break for lunch/coffee breaks, etc. — the
+dashboard shows a colored badge on each block and, once you have more than
+one category in use, a row of filter pills above the timeline so you can
+isolate just "Work" or just "Break" and see completion stats for that
+slice of the day on its own. If your Supabase project predates this
+feature, run `supabase/migration_add_category.sql` once to add the column
+(existing blocks default to "Personal").
+
+## Timer — live break/duty countdown
+
+A separate **Timer** tab for one-off blocks that aren't part of your daily
+routine template — "Lunch at 12:00 for 1 hour," a meeting, an errand.
+Pick a label, a start time, and a duration; Anchor shows you the exact
+return time, a live countdown, and a progress bar. Ten minutes before
+you're due back it fires a heads-up (a browser notification if you grant
+permission, plus an in-page banner and a short beep either way), and again
+if you go overdue. Today's breaks are logged in a simple history list
+below. If your Supabase project predates this feature, run
+`supabase/migration_add_breaks.sql` once to add the `breaks` table.
+
+**Note on notifications:** the 10-minutes-before alert is entirely
+client-side (no server, no push service), so the browser tab needs to
+stay open for it to fire — it won't notify you if the tab or browser is
+fully closed. The in-page beep and banner work the same way. This is a
+deliberate no-build-step tradeoff; a true background push would need a
+service worker and a paid push provider.
+
 ## Extending it
 
 - Swap `js/advice.js` for a real AI call (e.g. the Anthropic or OpenAI

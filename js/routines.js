@@ -28,6 +28,10 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function categorySlug(cat) {
+  return "cat-" + (cat || "Personal").toLowerCase();
+}
+
 async function loadRoutines() {
   const { data, error } = await sb
     .from("routines")
@@ -54,8 +58,11 @@ async function loadRoutines() {
         <div class="card-body d-flex align-items-center gap-3 flex-wrap">
           <div class="rr-time">${fmtTime(r.time)}</div>
           <div class="flex-grow-1" style="min-width: 160px;">
-            <div class="fw-semibold">${escapeHtml(r.title)}</div>
-            ${r.description ? `<div class="text-secondary-emphasis small">${escapeHtml(r.description)}</div>` : ""}
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="fw-semibold">${escapeHtml(r.title)}</span>
+              <span class="cat-badge ${categorySlug(r.category)}">${escapeHtml(r.category || "Personal")}</span>
+            </div>
+            ${r.description ? `<div class="text-secondary-emphasis small mt-1">${escapeHtml(r.description)}</div>` : ""}
             <div class="font-mono text-faint small mt-1">${r.duration_minutes} min</div>
           </div>
           <div class="d-flex gap-2">
@@ -83,6 +90,7 @@ function openModal(routine) {
   document.getElementById("rTime").value = routine ? routine.time.slice(0, 5) : "";
   document.getElementById("rDuration").value = routine ? routine.duration_minutes : 30;
   document.getElementById("rTitle").value = routine ? routine.title : "";
+  document.getElementById("rCategory").value = routine ? routine.category || "Personal" : "Personal";
   document.getElementById("rDesc").value = routine ? routine.description || "" : "";
   routineModal.show();
 }
@@ -102,6 +110,7 @@ form.addEventListener("submit", async (e) => {
     time: document.getElementById("rTime").value,
     duration_minutes: Number(document.getElementById("rDuration").value),
     title: document.getElementById("rTitle").value.trim(),
+    category: document.getElementById("rCategory").value,
     description: document.getElementById("rDesc").value.trim() || null,
     active: true,
   };

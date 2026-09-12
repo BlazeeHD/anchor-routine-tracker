@@ -57,6 +57,17 @@
               <label for="rTitle" class="form-label small text-secondary-emphasis">Title</label>
               <input type="text" id="rTitle" class="form-control" placeholder="e.g. Warm up" required />
             </div>
+            <div class="mb-3">
+              <label for="rCategory" class="form-label small text-secondary-emphasis">Category</label>
+              <select id="rCategory" class="form-select">
+                <option value="Personal">Personal</option>
+                <option value="Work">Work</option>
+                <option value="Break">Break</option>
+                <option value="Health">Health</option>
+                <option value="Other">Other</option>
+              </select>
+              <div class="form-text">Use Work/Break for duty hours, lunch, etc. so you can track them separately.</div>
+            </div>
             <div class="mb-1">
               <label for="rDesc" class="form-label small text-secondary-emphasis">Notes (optional)</label>
               <textarea id="rDesc" class="form-control" rows="3" placeholder="Any details for yourself"></textarea>

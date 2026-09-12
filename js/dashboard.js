@@ -13,6 +13,7 @@ let routines = [];               // active routine templates, sorted by time
 let logsForDay = {};             // routine_id -> log row for selectedDate
 let selectedDate = new Date();   // local date being viewed
 let calCursor = startOfMonth(selectedDate); // month currently shown in the calendar dropdown
+let activeCategory = "All";      // category filter pill currently selected
 
 // ---------------------------------------------------------------------
 // Date helpers (all local time, never UTC, so Postgres `date` matches
@@ -46,6 +47,7 @@ const feedbackModal = new bootstrap.Modal(feedbackModalEl);
 // Init
 // ---------------------------------------------------------------------
 await loadRoutines();
+renderCategoryFilters();
 await loadDay(selectedDate);
 wireEvents();
 
@@ -113,6 +115,39 @@ function escapeHtml(str) {
   div.textContent = str || "";
   return div.innerHTML;
 }
+function categorySlug(cat) {
+  return "cat-" + (cat || "Personal").toLowerCase();
+}
+
+function getFilteredRoutines() {
+  return activeCategory === "All" ? routines : routines.filter((r) => (r.category || "Personal") === activeCategory);
+}
+
+function renderCategoryFilters() {
+  const host = document.getElementById("categoryFilters");
+  const categories = [...new Set(routines.map((r) => r.category || "Personal"))];
+
+  if (categories.length <= 1) {
+    host.innerHTML = "";
+    return; // nothing to filter if everything's one category (or no routines yet)
+  }
+
+  const pill = (label, isActive) => `
+    <button class="filter-pill ${isActive ? "is-active" : ""}" data-cat="${label}" type="button">
+      ${label === "All" ? "" : `<span class="dot" style="background: var(--cat-${categorySlug(label).replace("cat-", "")})"></span>`}${label}
+    </button>`;
+
+  host.innerHTML = pill("All", activeCategory === "All") + categories.map((c) => pill(c, activeCategory === c)).join("");
+
+  host.querySelectorAll(".filter-pill").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      activeCategory = btn.dataset.cat;
+      renderCategoryFilters();
+      renderTimeline();
+      renderStats();
+    });
+  });
+}
 
 function renderTimeline() {
   if (routines.length === 0) {
@@ -124,7 +159,16 @@ function renderTimeline() {
     return;
   }
 
-  const items = routines
+  const visible = getFilteredRoutines();
+  if (visible.length === 0) {
+    timelineWrap.innerHTML = `
+      <div class="text-center border border-secondary-subtle rounded-4 p-5">
+        <p class="text-secondary-emphasis mb-0">No ${activeCategory} blocks for this day.</p>
+      </div>`;
+    return;
+  }
+
+  const items = visible
     .map((r) => {
       const log = logsForDay[r.id];
       const status = log ? log.status : "pending";
@@ -135,7 +179,10 @@ function renderTimeline() {
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-start gap-3">
               <div>
-                <span class="font-mono small text-teal d-block mb-1">${fmtTime(r.time)}</span>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="font-mono small text-teal">${fmtTime(r.time)}</span>
+                  <span class="cat-badge ${categorySlug(r.category)}">${escapeHtml(r.category || "Personal")}</span>
+                </div>
                 <div class="fw-semibold">${escapeHtml(r.title)}</div>
                 ${r.description ? `<div class="text-secondary-emphasis small mt-1">${escapeHtml(r.description)}</div>` : ""}
               </div>
@@ -220,10 +267,11 @@ async function saveNote(routineId, itemEl) {
 // Stats bar
 // ---------------------------------------------------------------------
 function renderStats() {
-  const total = routines.length;
+  const visible = getFilteredRoutines();
+  const total = visible.length;
   let done = 0, missed = 0, doneMinutes = 0, missedMinutes = 0, totalMinutes = 0;
 
-  for (const r of routines) {
+  for (const r of visible) {
     totalMinutes += r.duration_minutes;
     const status = logsForDay[r.id]?.status;
     if (status === "done") { done++; doneMinutes += r.duration_minutes; }
