@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anchor — Budget</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./css/theme.css" />
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container py-4" style="max-width: 880px;">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div>
+        <span class="eyebrow">Money in, money out</span>
+        <h1 class="h4 mb-0">Budget</h1>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm" id="editBudgetBtn">Budget settings</button>
+        <a class="btn btn-outline-secondary btn-sm" href="./expenses.html">All expenses</a>
+      </div>
+    </div>
+
+    <div id="lowBudgetAlert"></div>
+
+    <!-- Budget display -->
+    <div class="card mb-4">
+      <div class="card-body text-center py-4">
+        <span class="eyebrow">Current budget</span>
+        <div class="budget-amount" id="budgetAmount">₱0.00</div>
+        <p class="text-secondary-emphasis small mb-3" id="budgetPct">— of initial ₱0.00</p>
+        <div class="progress" style="height: 10px;">
+          <div class="progress-bar" id="budgetProgress" style="width: 0%; background: var(--teal);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card h-100"><div class="card-body text-center py-3">
+          <div class="font-mono fs-5" id="statToday">₱0.00</div>
+          <div class="text-secondary-emphasis small">Today</div>
+        </div></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card h-100"><div class="card-body text-center py-3">
+          <div class="font-mono fs-5" id="statWeek">₱0.00</div>
+          <div class="text-secondary-emphasis small">This week</div>
+        </div></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card h-100"><div class="card-body text-center py-3">
+          <div class="font-mono fs-5" id="statMonth">₱0.00</div>
+          <div class="text-secondary-emphasis small">This month</div>
+        </div></div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card h-100"><div class="card-body text-center py-3">
+          <div class="font-mono fs-5" id="statTotal">₱0.00</div>
+          <div class="text-secondary-emphasis small">Total spent</div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-body d-flex flex-column">
+            <h2 class="h6 mb-1">Record an expense</h2>
+            <p class="text-secondary-emphasis small mb-3">Log something you spent.</p>
+            <button class="btn btn-danger mt-auto" data-bs-toggle="modal" data-bs-target="#expenseModal" id="openExpenseModalBtn">+ Add expense</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-body d-flex flex-column">
+            <h2 class="h6 mb-1">Add budget funds</h2>
+            <p class="text-secondary-emphasis small mb-3">Top up — salary, allowance, gift.</p>
+            <button class="btn btn-outline-success mt-auto" data-bs-toggle="modal" data-bs-target="#topupModal">+ Add funds</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent transactions + category chart -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-7">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <h2 class="h6 mb-0">Recent transactions</h2>
+              <a href="./expenses.html" class="small">View all</a>
+            </div>
+            <div id="recentTransactions" class="d-flex flex-column gap-2 mt-2"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="card h-100">
+          <div class="card-body">
+            <h2 class="h6 mb-3">By category</h2>
+            <div id="categoryChartWrap" style="position: relative; height: 220px;">
+              <canvas id="categoryChart"></canvas>
+            </div>
+            <p class="text-secondary-emphasis small mb-0 mt-2 d-none" id="noCategoryData">No expenses yet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- First-time setup / edit budget settings modal -->
+  <div class="modal fade" id="setupModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5 mb-0" id="setupModalTitle">Set up your budget</h2>
+        </div>
+        <div class="modal-body">
+          <p class="text-secondary-emphasis small">Anchor tracks spending against a running total you top up yourself — not linked to a bank.</p>
+          <div id="setupError"></div>
+          <div class="mb-3">
+            <label for="setupInitial" class="form-label small text-secondary-emphasis">Starting budget</label>
+            <input type="number" id="setupInitial" class="form-control" min="0" step="0.01" placeholder="e.g. 10000" required />
+          </div>
+          <div class="mb-1">
+            <label for="setupWarning" class="form-label small text-secondary-emphasis">Low-budget warning threshold</label>
+            <input type="number" id="setupWarning" class="form-control" min="0" step="0.01" placeholder="e.g. 1000" required />
+            <div class="form-text">You'll see a warning banner once your budget drops to this level or below.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary d-none" id="setupCancelBtn" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="setupSaveBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add expense modal -->
+  <div class="modal fade" id="expenseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5 mb-0">Record an expense</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="expenseError"></div>
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label for="expAmount" class="form-label small text-secondary-emphasis">Amount</label>
+              <input type="number" id="expAmount" class="form-control" min="0.01" step="0.01" placeholder="0.00" required />
+            </div>
+            <div class="col-6">
+              <label for="expDate" class="form-label small text-secondary-emphasis">Date</label>
+              <input type="date" id="expDate" class="form-control" required />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="expCategory" class="form-label small text-secondary-emphasis">Category</label>
+            <select id="expCategory" class="form-select">
+              <option value="Food">🍔 Food</option>
+              <option value="Transportation">🚗 Transportation</option>
+              <option value="Bills">🧾 Bills</option>
+              <option value="Shopping">🛍️ Shopping</option>
+              <option value="Entertainment">🎮 Entertainment</option>
+              <option value="Health">❤️ Health</option>
+              <option value="Education">📚 Education</option>
+              <option value="Other">📦 Other</option>
+            </select>
+          </div>
+          <div class="mb-1">
+            <label for="expDescription" class="form-label small text-secondary-emphasis">Description (optional)</label>
+            <input type="text" id="expDescription" class="form-control" placeholder="What was it for?" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="saveExpenseBtn">Add expense</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add budget funds modal -->
+  <div class="modal fade" id="topupModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title h5 mb-0">Add budget funds</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="topupError"></div>
+          <div class="mb-3">
+            <label for="topupAmount" class="form-label small text-secondary-emphasis">Amount</label>
+            <input type="number" id="topupAmount" class="form-control" min="0.01" step="0.01" placeholder="0.00" required />
+          </div>
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <button type="button" class="btn btn-sm btn-outline-success quick-add-chip" data-amount="100">+₱100</button>
+            <button type="button" class="btn btn-sm btn-outline-success quick-add-chip" data-amount="500">+₱500</button>
+            <button type="button" class="btn btn-sm btn-outline-success quick-add-chip" data-amount="1000">+₱1,000</button>
+            <button type="button" class="btn btn-sm btn-outline-success quick-add-chip" data-amount="5000">+₱5,000</button>
+          </div>
+          <div class="mb-1">
+            <label for="topupDescription" class="form-label small text-secondary-emphasis">Description (optional)</label>
+            <input type="text" id="topupDescription" class="form-control" placeholder="e.g. Salary, allowance, gift" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" id="saveTopupBtn">Add to budget</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="./js/budget.js"></script>
+</body>
+</html>

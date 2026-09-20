@@ -145,18 +145,27 @@ function updateReturnPreview() {
 
 function wireStartForm() {
   startTimeInput.addEventListener("input", updateReturnPreview);
-  durationInput.addEventListener("input", updateReturnPreview);
+  durationInput.addEventListener("input", () => {
+    syncDurationPillActive();
+    updateReturnPreview();
+  });
 
   document.querySelectorAll(".duration-pill").forEach((btn) => {
     btn.addEventListener("click", () => {
       durationInput.value = btn.dataset.min;
-      document.querySelectorAll(".duration-pill").forEach((b) => b.classList.remove("is-active"));
-      btn.classList.add("is-active");
+      syncDurationPillActive();
       updateReturnPreview();
     });
   });
 
   document.getElementById("startBreakBtn").addEventListener("click", startBreak);
+  syncDurationPillActive();
+}
+
+function syncDurationPillActive() {
+  document.querySelectorAll(".duration-pill").forEach((b) => {
+    b.classList.toggle("is-active", b.dataset.min === String(durationInput.value));
+  });
 }
 
 async function startBreak() {

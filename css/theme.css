@@ -253,6 +253,83 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .fw-display {
 }
 .filter-pill .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 5px; }
 
+/* ============================================================
+   Timer page — label chips, active break card
+   ============================================================ */
+.label-chip {
+  font-family: var(--font-mono);
+  font-size: .8rem;
+  padding: .4rem .9rem;
+  border-radius: 999px;
+  border: 1px solid var(--bs-border-color);
+  background: transparent;
+  color: var(--bs-secondary-color);
+  transition: all .15s ease;
+}
+.label-chip:hover { border-color: var(--bs-secondary-color); color: var(--bs-body-color); }
+.label-chip.is-active {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #062621;
+  font-weight: 600;
+}
+
+.duration-pill.is-active {
+  background: var(--teal) !important;
+  border-color: var(--teal) !important;
+  color: #062621 !important;
+  font-weight: 600;
+}
+
+.border-teal { border-color: var(--teal) !important; }
+.countdown-display { font-family: var(--font-mono); font-size: 2.5rem; letter-spacing: -0.02em; }
+.countdown-display.is-overdue { color: var(--coral); }
+
+/* ============================================================
+   Budget tracker — expense category badges (distinct hues from
+   the routine categories so the two never read as the same tag)
+   ============================================================ */
+:root {
+  --money-food: #f2b84b;
+  --money-food-dim: rgba(242, 184, 75, .16);
+  --money-transport: #5b8def;
+  --money-transport-dim: rgba(91, 141, 239, .16);
+  --money-bills: #e8604c;
+  --money-bills-dim: rgba(232, 96, 76, .16);
+  --money-shopping: #c792ea;
+  --money-shopping-dim: rgba(199, 146, 234, .16);
+  --money-entertainment: #7ee081;
+  --money-entertainment-dim: rgba(126, 224, 129, .16);
+  --money-health: #ff8fab;
+  --money-health-dim: rgba(255, 143, 171, .16);
+  --money-education: #2fbfa3;
+  --money-education-dim: rgba(47, 191, 163, .16);
+  --money-other: #4a5568;
+  --money-other-dim: rgba(74, 85, 104, .16);
+}
+.money-badge {
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: .15rem .55rem;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.money-badge.money-food { color: var(--money-food); border-color: var(--money-food); background: var(--money-food-dim); }
+.money-badge.money-transportation { color: var(--money-transport); border-color: var(--money-transport); background: var(--money-transport-dim); }
+.money-badge.money-bills { color: var(--money-bills); border-color: var(--money-bills); background: var(--money-bills-dim); }
+.money-badge.money-shopping { color: var(--money-shopping); border-color: var(--money-shopping); background: var(--money-shopping-dim); }
+.money-badge.money-entertainment { color: var(--money-entertainment); border-color: var(--money-entertainment); background: var(--money-entertainment-dim); }
+.money-badge.money-health { color: var(--money-health); border-color: var(--money-health); background: var(--money-health-dim); }
+.money-badge.money-education { color: var(--money-education); border-color: var(--money-education); background: var(--money-education-dim); }
+.money-badge.money-other { color: var(--money-other); border-color: var(--money-other); background: var(--money-other-dim); }
+
+.budget-amount { font-family: var(--font-mono); font-size: 2.4rem; letter-spacing: -0.02em; }
+.budget-amount.is-low { color: var(--coral); }
+.quick-add-chip { font-family: var(--font-mono); font-size: .78rem; }
+
 .eyebrow {
   font-family: var(--font-mono);
   font-size: .72rem;

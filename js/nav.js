@@ -25,10 +25,8 @@ export function renderNav(active) {
             ${link("./app.html", "Dashboard", "dashboard")}
             ${link("./routines.html", "My Routine", "routines")}
             ${link("./timer.html", "Timer", "timer")}
+            ${link("./budget.html", "Budget", "budget")}
             ${link("./archive.html", "Archive", "archive")}
-            <li class="nav-item">
-              <a class="nav-link" href="https://budgetapp.infinityfree.me/" target="_blank" rel="noopener noreferrer">Budget App ↗</a>
-            </li>
             <li class="nav-item mt-2 mt-lg-0">
               <button class="btn btn-outline-secondary btn-sm" id="logoutBtn" type="button">Log out</button>
             </li>
