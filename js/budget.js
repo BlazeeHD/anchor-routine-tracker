@@ -16,6 +16,10 @@ const CATEGORY_COLORS = { Food: "#f2b84b", Transportation: "#5b8def", Bills: "#e
 // ---------------------------------------------------------------------
 let budget = null;
 let categoryChartInstance = null;
+let lastExpenses = [];
+let chartMode = "percent"; // "percent" | "money" — what the category chart labels show
+
+if (window.ChartDataLabels) Chart.register(window.ChartDataLabels);
 
 // ---------------------------------------------------------------------
 // Helpers
@@ -240,6 +244,7 @@ async function loadDashboardData() {
 
   renderStats(data);
   renderRecent(data.slice(0, 5));
+  lastExpenses = data;
   renderCategoryChart(data);
 }
 
@@ -278,14 +283,14 @@ function renderRecent(expenses) {
       const d = new Date(e.expense_date + "T00:00:00");
       return `
         <div class="d-flex align-items-center justify-content-between gap-3 border border-secondary-subtle rounded-3 px-3 py-2">
-          <div class="d-flex align-items-center gap-2">
+          <div class="d-flex align-items-center gap-2 flex-grow-1" style="min-width: 0;">
             <span class="money-badge ${moneySlug(e.category)}">${CATEGORY_ICONS[e.category] || "📦"} ${escapeHtml(e.category)}</span>
-            <div>
-              <div class="small">${escapeHtml(e.description || e.category)}</div>
+            <div style="min-width: 0;">
+              <div class="small text-truncate">${escapeHtml(e.description || e.category)}</div>
               <div class="font-mono text-faint small">${d.toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
             </div>
           </div>
-          <div class="d-flex align-items-center gap-2">
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
             <span class="font-mono text-coral">${fmtMoney(e.amount)}</span>
             <button class="btn btn-outline-danger btn-sm delete-exp-btn" data-id="${e.id}" title="Delete">✕</button>
           </div>
@@ -348,12 +353,37 @@ function renderCategoryChart(expenses) {
           position: "bottom",
           labels: { color: "#8b93a3", boxWidth: 10, padding: 10, font: { size: 11 } },
         },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+              const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : "0.0";
+              return `${ctx.label}: ${fmtMoney(ctx.parsed)} (${pct}%)`;
+            },
+          },
+        },
+        datalabels: {
+          color: "#fff",
+          textStrokeColor: "rgba(0,0,0,0.6)",
+          textStrokeWidth: 3,
+          font: { weight: "600", size: 11 },
+          formatter: (value, ctx) => {
+            if (chartMode === "money") return fmtMoney(value);
+            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+            return total > 0 ? `${((value / total) * 100).toFixed(0)}%` : "0%";
+          },
+        },
       },
     },
   });
 }
 
 function wireEvents() {
-  // (form listeners are attached directly above; this is here for
-  // parity with the other pages' structure and future additions)
+  document.querySelectorAll(".chart-mode-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      chartMode = btn.dataset.mode;
+      document.querySelectorAll(".chart-mode-btn").forEach((b) => b.classList.toggle("is-active", b === btn));
+      renderCategoryChart(lastExpenses);
+    });
+  });
 }

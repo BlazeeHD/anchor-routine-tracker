@@ -106,7 +106,13 @@
       <div class="col-md-5">
         <div class="card h-100">
           <div class="card-body">
-            <h2 class="h6 mb-3">By category</h2>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h6 mb-0">By category</h2>
+              <div class="btn-group btn-group-sm" role="group" aria-label="Chart value display">
+                <button type="button" class="btn btn-outline-secondary chart-mode-btn is-active" data-mode="percent">%</button>
+                <button type="button" class="btn btn-outline-secondary chart-mode-btn" data-mode="money">₱</button>
+              </div>
+            </div>
             <div id="categoryChartWrap" style="position: relative; height: 220px;">
               <canvas id="categoryChart"></canvas>
             </div>
@@ -226,6 +232,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2/dist/chartjs-plugin-datalabels.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="./js/budget.js"></script>
 </body>

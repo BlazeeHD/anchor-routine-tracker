@@ -41,11 +41,11 @@ async function loadFunds() {
       const d = new Date(t.created_at);
       return `
         <div class="d-flex align-items-center justify-content-between gap-3 border border-secondary-subtle rounded-3 px-3 py-2">
-          <div>
-            <div class="small">${escapeHtml(t.description || "Funds added")}</div>
+          <div class="flex-grow-1" style="min-width: 0;">
+            <div class="small text-truncate">${escapeHtml(t.description || "Funds added")}</div>
             <div class="font-mono text-faint small">${d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} · ${d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</div>
           </div>
-          <div class="d-flex align-items-center gap-2">
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
             <span class="font-mono text-teal">+${fmtMoney(t.amount)}</span>
             <button class="btn btn-outline-danger btn-sm delete-topup-btn" data-id="${t.id}">✕</button>
           </div>
