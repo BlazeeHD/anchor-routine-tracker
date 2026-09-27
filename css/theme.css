@@ -341,6 +341,33 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .fw-display {
   font-weight: 600;
 }
 
+/* ============================================================
+   Wishlist
+   ============================================================ */
+.term-badge, .priority-badge {
+  font-family: var(--font-mono);
+  font-size: .66rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.term-badge.term-short { color: var(--teal); border-color: var(--teal); background: var(--teal-dim); }
+.term-badge.term-long { color: var(--money-shopping); border-color: var(--money-shopping); background: var(--money-shopping-dim); }
+.priority-badge.priority-high { color: var(--coral); border-color: var(--coral); background: var(--coral-dim); }
+.priority-badge.priority-medium { color: var(--amber); border-color: var(--amber); background: var(--amber-dim); }
+.priority-badge.priority-low { color: var(--slate); border-color: var(--slate); background: rgba(74, 85, 104, .16); }
+
+.wishlist-card.is-achieved { opacity: .6; }
+.wishlist-card.is-achieved .wishlist-title { text-decoration: line-through; }
+.afford-pill {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  color: var(--bs-secondary-color);
+}
+
 .eyebrow {
   font-family: var(--font-mono);
   font-size: .72rem;
