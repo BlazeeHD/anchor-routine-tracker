@@ -24,12 +24,23 @@ function escapeHtml(str) {
   div.textContent = str || "";
   return div.innerHTML;
 }
+function toISODate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+const CATEGORY_ICONS = { Food: "🍔", Transportation: "🚗", Bills: "🧾", Shopping: "🛍️", Entertainment: "🎮", Health: "❤️", Education: "📚", Other: "📦" };
+function moneySlug(cat) {
+  return "money-" + (cat || "Other").toLowerCase();
+}
 
 // ---------------------------------------------------------------------
 // Bootstrap modal instances
 // ---------------------------------------------------------------------
 const itemModal = new bootstrap.Modal(document.getElementById("itemModal"));
 const savingsModal = new bootstrap.Modal(document.getElementById("savingsModal"));
+const achieveModal = new bootstrap.Modal(document.getElementById("achieveModal"));
 
 // ---------------------------------------------------------------------
 // Init
@@ -115,7 +126,7 @@ function renderList() {
     btn.addEventListener("click", () => openItemModal(items.find((i) => i.id === btn.dataset.id)))
   );
   host.querySelectorAll(".toggle-achieved-btn").forEach((btn) =>
-    btn.addEventListener("click", () => toggleAchieved(btn.dataset.id))
+    btn.addEventListener("click", () => handleAchieveClick(btn.dataset.id))
   );
   host.querySelectorAll(".delete-item-btn").forEach((btn) =>
     btn.addEventListener("click", () => deleteItem(btn.dataset.id))
@@ -144,8 +155,10 @@ function renderCard(item) {
               <span class="wishlist-title fw-semibold">${escapeHtml(item.title)}</span>
               <span class="term-badge term-${item.term}">${item.term === "short" ? "Short-term" : "Long-term"}</span>
               <span class="priority-badge priority-${item.priority.toLowerCase()}">${item.priority}</span>
+              <span class="money-badge ${moneySlug(item.category)}">${CATEGORY_ICONS[item.category] || "📦"} ${escapeHtml(item.category)}</span>
             </div>
             ${item.notes ? `<div class="text-secondary-emphasis small">${escapeHtml(item.notes)}</div>` : ""}
+            ${item.linked_expense_id ? `<div class="small text-teal mt-1">✓ Recorded as an expense</div>` : ""}
           </div>
           <div class="font-mono text-end flex-shrink-0">
             <div>${fmtMoney(saved)} <span class="text-faint">/ ${fmtMoney(cost)}</span></div>
@@ -180,6 +193,7 @@ function openItemModal(item) {
   document.getElementById("itemSaved").value = item ? item.amount_saved : 0;
   document.getElementById("itemTerm").value = item ? item.term : "short";
   document.getElementById("itemPriority").value = item ? item.priority : "Medium";
+  document.getElementById("itemCategory").value = item ? item.category : "Shopping";
   document.getElementById("itemNotes").value = item ? item.notes || "" : "";
   itemModal.show();
 }
@@ -212,6 +226,7 @@ document.getElementById("saveItemBtn").addEventListener("click", async () => {
     amount_saved: saved,
     term: document.getElementById("itemTerm").value,
     priority: document.getElementById("itemPriority").value,
+    category: document.getElementById("itemCategory").value,
     notes: document.getElementById("itemNotes").value.trim() || null,
   };
 
@@ -273,13 +288,91 @@ document.getElementById("saveSavingsBtn").addEventListener("click", async () => 
 // ---------------------------------------------------------------------
 // Mark achieved / reopen / delete
 // ---------------------------------------------------------------------
-async function toggleAchieved(id) {
+function handleAchieveClick(id) {
   const item = items.find((i) => i.id === id);
-  const newStatus = item.status === "achieved" ? "active" : "achieved";
-  const { error } = await sb
-    .from("wishlist_items")
-    .update({ status: newStatus, achieved_at: newStatus === "achieved" ? new Date().toISOString() : null })
-    .eq("id", id);
+  if (item.status === "achieved") {
+    // Reopening never touches money — just flip the status back.
+    reopenItem(id);
+  } else {
+    openAchieveModal(item);
+  }
+}
+
+function openAchieveModal(item) {
+  document.getElementById("achieveError").innerHTML = "";
+  document.getElementById("achieveItemId").value = item.id;
+  document.getElementById("achieveContext").textContent = `Marking "${item.title}" as achieved.`;
+  document.getElementById("achieveRecordExpense").checked = false;
+  document.getElementById("achieveExpenseFields").classList.add("d-none");
+  document.getElementById("achieveAmount").value = item.estimated_cost;
+  const dateInput = document.getElementById("achieveDate");
+  dateInput.max = toISODate(new Date());
+  dateInput.value = toISODate(new Date());
+  document.getElementById("achieveCategory").value = item.category;
+  achieveModal.show();
+}
+
+document.getElementById("achieveRecordExpense").addEventListener("change", (e) => {
+  document.getElementById("achieveExpenseFields").classList.toggle("d-none", !e.target.checked);
+});
+
+document.getElementById("confirmAchieveBtn").addEventListener("click", async () => {
+  const errorHost = document.getElementById("achieveError");
+  errorHost.innerHTML = "";
+
+  const id = document.getElementById("achieveItemId").value;
+  const shouldRecord = document.getElementById("achieveRecordExpense").checked;
+  const btn = document.getElementById("confirmAchieveBtn");
+
+  let linkedExpenseId = null;
+
+  if (shouldRecord) {
+    const amount = Number(document.getElementById("achieveAmount").value);
+    const date = document.getElementById("achieveDate").value;
+    const category = document.getElementById("achieveCategory").value;
+
+    if (!amount || amount <= 0) {
+      errorHost.innerHTML = `<div class="alert alert-danger py-2 small">Enter an amount greater than 0.</div>`;
+      return;
+    }
+    if (!date) {
+      errorHost.innerHTML = `<div class="alert alert-danger py-2 small">Pick a date.</div>`;
+      return;
+    }
+
+    btn.disabled = true;
+    const item = items.find((i) => i.id === id);
+    const { data: newExpense, error: expenseError } = await sb.rpc("add_expense", {
+      p_amount: amount,
+      p_category: category,
+      p_description: item.title,
+      p_expense_date: date,
+    });
+    btn.disabled = false;
+
+    if (expenseError) {
+      errorHost.innerHTML = `<div class="alert alert-danger py-2 small">${expenseError.message}</div>`;
+      return;
+    }
+    linkedExpenseId = newExpense.id;
+  }
+
+  btn.disabled = true;
+  const updatePayload = { status: "achieved", achieved_at: new Date().toISOString() };
+  if (linkedExpenseId) updatePayload.linked_expense_id = linkedExpenseId;
+  const { error } = await sb.from("wishlist_items").update(updatePayload).eq("id", id);
+  btn.disabled = false;
+
+  if (error) {
+    errorHost.innerHTML = `<div class="alert alert-danger py-2 small">${error.message}</div>`;
+    return;
+  }
+  achieveModal.hide();
+  await loadItems();
+});
+
+async function reopenItem(id) {
+  const { error } = await sb.from("wishlist_items").update({ status: "active", achieved_at: null }).eq("id", id);
   if (error) {
     alert(`Couldn't update: ${error.message}`);
     return;
